@@ -20,11 +20,20 @@ import Loading from "@/components/loading/loading";
 import { useGetAllCharacterExternal } from "@/hooks/characters/use-characters-external";
 import { Show } from "@/components/show/show";
 import { MESSAGES } from "@/constants/message-character";
-import { useCreateCharacter } from "@/hooks/characters/use-characters";
+import {
+  useCreateCharacter,
+  useGetAllCharacter,
+} from "@/hooks/characters/use-characters";
 import adaptServerCharacter from "@/adapters/adapter-server-character";
-import { filterByName } from "@/utilities/filters";
+import { excludeItemsExist, filterByName } from "@/utilities/filters";
 
 export default function Home() {
+
+  const { data = []} = useGetAllCharacter();
+
+  const characterNames = data.map((character:any) => character.name);
+
+
   const { data: { results = [] } = { results: [] }, isFetched } =
     useGetAllCharacterExternal();
 
@@ -49,11 +58,11 @@ export default function Home() {
 
   const onSearch = (term: string) => setTerm(term);
 
-  const resultsByTerm = filterByName(results, term);
+  const filterExisting = excludeItemsExist(results, characterNames);
+  const resultsByTerm = filterByName(filterExisting, term);
 
   return (
     <div className="bg-white pb-4">
-    
       <figure className="flex items-center justify-center mb-4">
         <Logo />
       </figure>
